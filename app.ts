@@ -5,7 +5,7 @@ import axios from 'axios';
 import express from 'express';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
+import session from 'cookie-session';
 import { Strategy as BnetStrategy } from 'passport-bnet';
 import { AddressInfo } from 'net';
 import { config } from 'dotenv';
@@ -62,8 +62,6 @@ const app = express()
 app.use(cookieParser())
 app.use(session({
   secret: 'blizzard',
-  saveUninitialized: true,
-  resave: true
 }))
 
 // Initialize Passport!  Also use passport.session() middleware, to support
