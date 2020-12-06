@@ -42,7 +42,6 @@ const getData = async (url: string, token: string, res: Response) => {
     })
     return timeStampData(data);
   } catch (error) {
-    console.log('get data booped');
     res.json(error);
     return;
   }

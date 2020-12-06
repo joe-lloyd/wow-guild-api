@@ -1,6 +1,5 @@
 import fs from 'fs';
 import https, { ServerOptions as HttpsServerOptions } from 'https';
-import http from 'http';
 import axios from 'axios';
 import express from 'express';
 import passport from 'passport';
@@ -152,16 +151,11 @@ app.get('/logout', function (req, res) {
 
 if (ENV === 'dev') {
   const httpsServer = https.createServer((credentials as HttpsServerOptions), app)
-
   httpsServer.listen(PORT, () => {
     console.log('httpsServer Listening on port %d', (httpsServer.address() as AddressInfo).port)
   })
 } else {
-  const httpServer = http.createServer()
-
-  httpServer.listen(PORT, () => {
-    console.log('httpServer Listening on port %d', (httpServer.address() as AddressInfo).port)
-    console.log(JSON.stringify(httpServer.address()));
-    console.log(JSON.stringify(httpServer));
+  app.listen(PORT, () => {
+    console.log(`httpServer Listening on port ${PORT}`)
   })
 }
