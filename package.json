@@ -1,0 +1,45 @@
+{
+  "name": "wow-guild-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only ./app.ts",
+    "prod": "tsc && node ./build/app.js"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.9",
+    "@types/passport": "^1.0.4",
+    "axios": "^0.21.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "nodemon": "^2.0.6",
+    "passport": "^0.4.1",
+    "passport-bnet": "^2.0.0",
+    "passport-oauth2": "^1.4.0",
+    "ts-node-dev": "^1.0.0",
+    "typescript": "^4.1.2"
+  },
+  "engines": {
+    "node": ">= 0.10.30"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express-session": "^1.17.3",
+    "@types/passport-bnet": "^2.0.1",
+    "chai": "^4.1.2",
+    "eslint": "^4.4.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "istanbul": "^0.4.3",
+    "mocha": "^5.1.1",
+    "sinon": "^5.0.7"
+  }
+}
