@@ -1,5 +1,6 @@
 import fs from 'fs';
-import https from 'https';
+import https, { ServerOptions as HttpsServerOptions } from 'https';
+import http from 'http';
 import axios from 'axios';
 import express from 'express';
 import passport from 'passport';
@@ -7,23 +8,27 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import { Strategy as BnetStrategy } from 'passport-bnet';
 import { AddressInfo } from 'net';
-
 import { config } from 'dotenv';
 import { getData, readExistingFile } from './helpers/read-file';
 
-const key = fs.readFileSync('sslcert/key.pem')
-const cert = fs.readFileSync('sslcert/cert.pem')
-
-const credentials = { key: key, cert: cert }
-
 config()
 
+const ENV = process.env.ENV
 const BNET_ID = process.env.BNET_ID
 const BNET_SECRET = process.env.BNET_SECRET
 const BNET_API_URL = process.env.BNET_API_URL
 const BNET_NAMESPACE = process.env.BNET_NAMESPACE
 const REALM_SLUG = process.env.REALM_SLUG
 const GUILD_SLUG = process.env.GUILD_SLUG
+const PORT = process.env.PORT
+
+let credentials;
+
+if (ENV === 'dev') {
+  const key = fs.readFileSync('sslcert/key.pem')
+  const cert = fs.readFileSync('sslcert/cert.pem')
+  credentials = { key: key, cert: cert }
+}
 
 passport.serializeUser((user: unknown, done: any) => {
   done(null, user)
@@ -76,14 +81,17 @@ app.get('/auth/bnet/callback',
 
 app.get('/guild', async (req, res) => {
   if (req.isAuthenticated()) {
-    readExistingFile('data/guildData.json', res);
+    const guildData: any = readExistingFile('data/guildData.json');
 
     // @ts-ignore
     const token: string = req.user.token;
-    const guildQuery = `${BNET_API_URL}/data/wow/guild/${REALM_SLUG}/${GUILD_SLUG}?namespace=${BNET_NAMESPACE}&locale=en_US&access_token=${token}`
-    const guildData: any = await getData(guildQuery, token, res)
 
-    fs.writeFile('data/guildData.json', JSON.stringify(guildData), () => {})
+    if (guildData) {
+      const guildQuery = `${BNET_API_URL}/data/wow/guild/${REALM_SLUG}/${GUILD_SLUG}?namespace=${BNET_NAMESPACE}&locale=en_US&access_token=${token}`
+      const guildData: any = await getData(guildQuery, token, res)
+
+      fs.writeFile('data/guildData.json', JSON.stringify(guildData), () => {})
+    }
 
     res.json(guildData)
   } else {
@@ -106,10 +114,10 @@ app.get('/guild-roster', async (req, res) => {
 
     const urls = guildRosterData.members
       .filter(({ character }: any) => (character.level === 60))
-      .map(({ character }) => character.key.href)
+      .map(({ character }: any) => character.key.href)
 
 
-    Promise.all(urls.map(async (charUrl) => {
+    Promise.all(urls.map(async (charUrl: string) => {
       const response = await axios({
         method: 'get',
         url: charUrl,
@@ -137,8 +145,16 @@ app.get('/logout', function (req, res) {
   res.redirect('/')
 })
 
-const httpsServer = https.createServer(credentials, app)
+if (ENV === 'dev') {
+  const httpsServer = https.createServer((credentials as HttpsServerOptions), app)
 
-httpsServer.listen(3000, () => {
-  console.log('httpsServer Listening on port %d', (httpsServer.address() as AddressInfo).port)
-})
+  httpsServer.listen(PORT, () => {
+    console.log('httpsServer Listening on port %d', (httpsServer.address() as AddressInfo).port)
+  })
+} else {
+  const httpServer = http.createServer()
+
+  httpServer.listen(PORT, () => {
+    console.log('httpServer Listening on port %d', (httpServer.address() as AddressInfo).port)
+  })
+}
