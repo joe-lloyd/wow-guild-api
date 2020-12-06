@@ -161,5 +161,7 @@ if (ENV === 'dev') {
 
   httpServer.listen(PORT, () => {
     console.log('httpServer Listening on port %d', (httpServer.address() as AddressInfo).port)
+    console.log(JSON.stringify(httpServer.address()));
+    console.log(JSON.stringify(httpServer));
   })
 }
