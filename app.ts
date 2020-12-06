@@ -21,6 +21,7 @@ const BNET_NAMESPACE = process.env.BNET_NAMESPACE
 const REALM_SLUG = process.env.REALM_SLUG
 const GUILD_SLUG = process.env.GUILD_SLUG
 const PORT = process.env.PORT
+const APP_URL = process.env.APP_URL
 
 let credentials;
 
@@ -46,7 +47,7 @@ passport.use(
       clientSecret: BNET_SECRET,
       region: 'eu',
       scope: 'wow.profile sc2.profile',
-      callbackURL: 'https://localhost:3000/auth/bnet/callback'
+      callbackURL: `${APP_URL}/auth/bnet/callback`
     },
     (accessToken: string, refreshToken: string, profile: unknown, done: any) => {
       process.nextTick(function () {
