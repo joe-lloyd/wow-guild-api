@@ -78,6 +78,10 @@ app.get('/auth/bnet/callback',
     res.redirect('/guild-roster')
   })
 
+app.get('/', async (req, res) => {
+  res.redirect('/guild-roster')
+});
+
 app.get('/guild', async (req, res) => {
   if (req.isAuthenticated()) {
     const guildData: any = readExistingFile('data/guildData.json');
@@ -108,7 +112,7 @@ app.get('/guild-roster', async (req, res) => {
       const guildRosterQuery = `${BNET_API_URL}/data/wow/guild/${REALM_SLUG}/${GUILD_SLUG}/roster?namespace=${BNET_NAMESPACE}`
       guildRosterData = await getData(guildRosterQuery, token, res)
 
-      fs.writeFile('data/guildRosterData.json', JSON.stringify(guildRosterData), () => {})
+      fs.writeFile('data/guildRosterData.json', JSON.stringify(guildRosterData), () => {console.log('data/guildRosterData.json callback')})
     }
 
     const urls = guildRosterData.members
@@ -116,7 +120,7 @@ app.get('/guild-roster', async (req, res) => {
       .map(({ character }: any) => character.key.href)
 
 
-    Promise.all(urls.map(async (charUrl: string) => {
+    await Promise.all(urls.map(async (charUrl: string) => {
       const response = await axios({
         method: 'get',
         url: charUrl,
@@ -124,7 +128,9 @@ app.get('/guild-roster', async (req, res) => {
       })
 
       const { name, realm } = response.data;
-      fs.writeFile(`data/characters/${realm.slug}-${name.toLowerCase()}.json`, JSON.stringify(response.data), () => {})
+      fs.writeFile(`data/characters/${realm.slug}-${name.toLowerCase()}.json`, JSON.stringify(response.data), () => {
+        console.log(`data/characters/${realm.slug}-${name.toLowerCase()}.json callback`);
+      })
 
       return response.data;
     }))
